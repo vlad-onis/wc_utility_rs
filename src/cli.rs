@@ -9,4 +9,7 @@ pub struct Args {
 
     #[arg(short, required(false))]
     pub l: Option<PathBuf>,
+
+    #[arg(short, required(false))]
+    pub w: Option<PathBuf>,
 }

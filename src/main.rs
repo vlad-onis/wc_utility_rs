@@ -1,6 +1,7 @@
 pub mod cli;
 
 use core::num;
+use std::fs::File;
 use std::io::{prelude::*, BufReader};
 use std::{io::BufRead, path::PathBuf};
 
@@ -56,6 +57,19 @@ pub fn count_lines(file_path: &PathBuf) -> u32 {
     lines_count as u32
 }
 
+fn count_words(file_path: &str) -> u32 {
+    let file = File::open(file_path).expect("error opening the file");
+    let reader = BufReader::new(file);
+    let mut word_count: usize = 0;
+
+    reader.lines().for_each(|line| {
+        let line = line.unwrap();
+        word_count += line.split(' ').filter(|word| word.len() > 0).count();
+    });
+
+    return word_count as u32;
+}
+
 fn main() {
     let args = Args::parse();
     set_tracing();
@@ -69,6 +83,12 @@ fn main() {
     if let Some(path) = args.l {
         info!("Counting lines in file: {:?}", path);
         let res = count_lines(&path);
-        info!("Read {} bytes from {:?}", res, path);
+        info!("found {} lines in {:?}", res, path);
+    }
+
+    if let Some(path) = args.w {
+        info!("Counting words in file: {:?}", path);
+        let res = count_words("test.txt");
+        info!("Read {} words from {:?}", res, path);
     }
 }
