@@ -57,7 +57,7 @@ pub fn count_lines(file_path: &PathBuf) -> u32 {
     lines_count as u32
 }
 
-fn count_words(file_path: &str) -> u32 {
+fn count_words(file_path: &PathBuf) -> u32 {
     let file = File::open(file_path).expect("error opening the file");
     let reader = BufReader::new(file);
     let mut word_count: usize = 0;
@@ -68,6 +68,19 @@ fn count_words(file_path: &str) -> u32 {
     });
 
     return word_count as u32;
+}
+
+pub fn count_characters(file_path: &PathBuf) -> u32 {
+    if !file_path.is_file() {
+        return 0;
+    }
+
+    let mut file = std::fs::File::open(file_path).expect("Could not upen the provided file");
+    let mut reader = BufReader::new(file);
+
+    let mut content = String::new();
+    let _count = reader.read_to_string(&mut content).unwrap();
+    content.chars().count() as u32
 }
 
 fn main() {
@@ -88,7 +101,13 @@ fn main() {
 
     if let Some(path) = args.w {
         info!("Counting words in file: {:?}", path);
-        let res = count_words("test.txt");
+        let res = count_words(&path);
         info!("Read {} words from {:?}", res, path);
+    }
+
+    if let Some(path) = args.m {
+        info!("Counting characters in file: {:?}", path);
+        let res = count_characters(&path);
+        info!("Read {} characters from {:?}", res, path);
     }
 }
