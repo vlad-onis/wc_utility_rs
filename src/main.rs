@@ -1,7 +1,7 @@
 pub mod cli;
 
 use core::num;
-use std::io::prelude::*;
+use std::io::{prelude::*, BufReader};
 use std::{io::BufRead, path::PathBuf};
 
 use clap::Parser;
@@ -41,13 +41,34 @@ pub fn count_bytes(file_path: &PathBuf) -> u32 {
     number_of_total_read_bytes as u32
 }
 
+pub fn count_lines(file_path: &PathBuf) -> u32 {
+    if !file_path.is_file() {
+        return 0;
+    }
+
+    let mut file = std::fs::File::open(file_path).expect("Could not upen the provided file");
+    let file = BufReader::new(file);
+    let lines = file.lines();
+
+    let lines_count = lines.count();
+
+    info!("The number of lines of the file is: {}", lines_count);
+    lines_count as u32
+}
+
 fn main() {
     let args = Args::parse();
     set_tracing();
 
-    if args.c.is_file() {
-        info!("Counting bytes in file: {:?}", args.c);
-        let res = count_bytes(&args.c);
-        info!("Read {} bytes from {:?}", res, args.c);
+    if let Some(path) = args.c {
+        info!("Counting bytes in file: {:?}", path);
+        let res = count_bytes(&path);
+        info!("Read {} bytes from {:?}", res, path);
+    }
+
+    if let Some(path) = args.l {
+        info!("Counting lines in file: {:?}", path);
+        let res = count_lines(&path);
+        info!("Read {} bytes from {:?}", res, path);
     }
 }
